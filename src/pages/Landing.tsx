@@ -53,7 +53,63 @@ export default function Landing() {
 }
 
 function HeroSection() {
-  const [tab, setTab] = useState('exchange');
+  const [tab, setTab] = useState('exchange'); // 'exchange' | 'buy/sell' | 'person'
+  const [payAmount, setPayAmount] = useState('500,000');
+  const [selectedAsset, setSelectedAsset] = useState('BTC'); // 'BTC' | 'ETH' | 'SOL' | 'USDT'
+
+  // Rates relative to NGN
+  const RATES: Record<string, number> = {
+    BTC: 35120400,
+    ETH: 2105300,
+    SOL: 142500,
+    USDT: 1650,
+    USD: 1620
+  };
+
+  // Convert input string with commas or decimals into clean float
+  const getNumericAmount = (val: string) => {
+    const sanitized = val.replace(/,/g, '');
+    const num = parseFloat(sanitized);
+    return isNaN(num) ? 0 : num;
+  };
+
+  // Compute estimation
+  let estimatedValue = '0.00';
+  let rateDisplay = '';
+  let badgeLabel = '₿ BTC';
+
+  const numericPay = getNumericAmount(payAmount);
+
+  if (tab === 'exchange') {
+    // Exchange NGN to USD (rate 1620)
+    const rate = RATES.USD;
+    estimatedValue = (numericPay / rate).toFixed(2);
+    rateDisplay = `1 USD = ₦${rate.toLocaleString()}`;
+    badgeLabel = '$ USD';
+  } else if (tab === 'buy/sell') {
+    // Buy selected asset using NGN
+    const rate = RATES[selectedAsset] || RATES.BTC;
+    const decimals = selectedAsset === 'USDT' ? 2 : 5;
+    estimatedValue = (numericPay / rate).toFixed(decimals);
+    rateDisplay = `1 ${selectedAsset} = ₦${rate.toLocaleString()}`;
+    badgeLabel = selectedAsset === 'BTC' ? '₿ BTC' : selectedAsset === 'ETH' ? 'Ξ ETH' : selectedAsset === 'SOL' ? '◎ SOL' : '₮ USDT';
+  } else {
+    // Person (P2P) - NGN to USDT at a premium merchant rate
+    const rate = 1635; // Custom P2P matching rate
+    estimatedValue = (numericPay / rate).toFixed(2);
+    rateDisplay = `1 USDT (P2P) = ₦${rate.toLocaleString()}`;
+    badgeLabel = '₮ USDT';
+  }
+
+  const handlePayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let clean = e.target.value.replace(/[^0-9.]/g, '');
+    // Format with commas for display
+    const parts = clean.split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    const formatted = parts.join('.');
+    setPayAmount(formatted || '0');
+  };
+
   return (
     <section className="pt-24 pb-16 px-6 relative border-b border-rule overflow-hidden">
       <div className="max-w-7xl mx-auto">
@@ -70,10 +126,10 @@ function HeroSection() {
               The trusted way to buy, sell, and trade crypto and gift cards. Bank-grade security with the lowest fees in Africa.
             </p>
               <div className="flex flex-wrap flex-col sm:flex-row items-center gap-4">
-                <Link to="/app" className="w-full sm:w-auto">
-                  <Button size="lg" className="h-14 w-full">Start trading</Button>
+                <Link to="/signup" className="w-full sm:w-auto">
+                  <Button size="lg" className="h-14 w-full bg-lime text-bg-base font-bold hover:bg-lime/90">Start trading</Button>
                 </Link>
-                <Link to="/features" className="w-full sm:w-auto">
+                <Link to="/signup" className="w-full sm:w-auto">
                   <Button variant="ghost" size="lg" className="h-[54px] w-full text-bone hover:text-cream transition-colors gap-2 font-medium">
                     <Play className="w-[18px] h-[18px] shrink-0 text-lime" />
                     See how it works
@@ -99,26 +155,62 @@ function HeroSection() {
                 ))}
               </div>
               <div className="space-y-4">
+                {tab === 'buy/sell' && (
+                  <div className="flex items-center justify-between bg-bg-high border border-rule/60 rounded-2 p-1.5 text-xs">
+                     <span className="text-bone pl-1.5 font-medium">Select asset:</span>
+                     <div className="flex gap-1.5">
+                       {['BTC', 'ETH', 'SOL', 'USDT'].map(coin => (
+                         <button
+                           key={coin}
+                           onClick={() => setSelectedAsset(coin)}
+                           className={`px-2.5 py-1 rounded-1.5 font-mono font-bold transition-all ${
+                             selectedAsset === coin
+                               ? 'bg-lime text-bg-base'
+                               : 'text-bone hover:text-cream hover:bg-rule/40'
+                           }`}
+                         >
+                           {coin}
+                         </button>
+                       ))}
+                     </div>
+                  </div>
+                )}
+
                 <div className="bg-bg-high border border-rule rounded-2 p-3">
                   <div className="text-xs text-bone mb-1">You Pay</div>
                   <div className="flex items-center justify-between">
-                    <input type="text" defaultValue="500,000" className="bg-transparent text-2xl font-mono font-medium w-full focus:outline-none tabular-nums text-cream" />
+                    <input 
+                      type="text" 
+                      value={payAmount} 
+                      onChange={handlePayChange}
+                      className="bg-transparent text-2xl font-mono font-medium w-full focus:outline-none tabular-nums text-cream" 
+                    />
                     <Chip variant="neutral" className="shrink-0 rounded-2 text-sm px-3 py-1.5 h-auto font-mono">₦ NGN</Chip>
                   </div>
                 </div>
+
                 <div className="bg-bg-high border border-rule rounded-2 p-3">
                   <div className="text-xs text-bone mb-1">You Get (Estimated)</div>
                   <div className="flex items-center justify-between">
-                    <input type="text" readOnly value="0.01423" className="bg-transparent text-2xl font-mono font-medium w-full focus:outline-none tabular-nums text-bone" />
-                    <Chip variant="neutral" className="shrink-0 rounded-2 text-sm px-3 py-1.5 h-auto font-mono">₿ BTC</Chip>
+                    <input 
+                      type="text" 
+                      readOnly 
+                      value={estimatedValue} 
+                      className="bg-transparent text-2xl font-mono font-medium w-full focus:outline-none tabular-nums text-bone" 
+                    />
+                    <Chip variant="neutral" className="shrink-0 rounded-2 text-sm px-3 py-1.5 h-auto font-mono">{badgeLabel}</Chip>
                   </div>
                 </div>
+
                 <div className="flex justify-between items-center text-xs text-stone py-2 border-b border-rule-soft pb-4">
-                  <span className="font-mono">1 BTC = ₦35,120,400</span>
-                  <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-lime"></span> Updated 3s ago</span>
+                  <span className="font-mono">{rateDisplay}</span>
+                  <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-lime animate-pulse"></span> Live Syncing</span>
                 </div>
-                <Link to="/login" className="block w-full">
-                  <Button className="w-full h-12 text-sm">Buy now</Button>
+
+                <Link to="/signup" className="block w-full">
+                  <Button className="w-full h-12 text-sm font-bold bg-lime text-bg-base hover:bg-lime/90 hover:scale-[1.01] transition-transform">
+                     {tab === 'buy/sell' ? `Buy ${selectedAsset} Now` : tab === 'exchange' ? 'Convert Currency Now' : 'Search P2P Offers'}
+                  </Button>
                 </Link>
               </div>
             </Card>
@@ -199,10 +291,10 @@ function CryptosSection() {
                   </td>
                   <td className="py-4 pr-4 text-right">
                     <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Link to="/app/trade">
+                      <Link to="/signup">
                         <Button variant="secondary" size="sm">Buy</Button>
                       </Link>
-                      <Link to="/app/trade">
+                      <Link to="/signup">
                         <Button variant="secondary" size="sm">Trade</Button>
                       </Link>
                     </div>
@@ -237,15 +329,17 @@ function ProductsSection() {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {products.map((p, i) => (
             <FadeIn key={i} delay={i * 0.1} className="h-full">
-              <Card className={`p-8 h-full flex flex-col group hover:-translate-y-1 transition-transform duration-300 ${p.highlight ? 'bg-lime text-bg-base border-lime-deep' : 'hover:border-rule-strong'}`}>
-                <h3 className="font-display font-bold text-xl mb-3">{p.title}</h3>
-                <p className={`text-sm mb-8 leading-relaxed ${p.highlight ? 'text-bg-high' : 'text-bone'}`}>{p.desc}</p>
-                <div className="mt-auto">
-                  <div className={`w-10 h-10 rounded-pill flex items-center justify-center transition-colors ${p.highlight ? 'bg-bg-base text-lime' : 'bg-rule text-cream group-hover:bg-lime group-hover:text-bg-base'}`}>
-                    <ArrowRight className="w-5 h-5"/>
+              <Link to="/signup" className="block h-full">
+                <Card className={`p-8 h-full flex flex-col group hover:-translate-y-1 hover:border-lime-line transition-all duration-300 ${p.highlight ? 'bg-lime text-bg-base border-lime-deep' : 'hover:border-rule-strong'}`}>
+                  <h3 className="font-display font-bold text-xl mb-3">{p.title}</h3>
+                  <p className={`text-sm mb-8 leading-relaxed ${p.highlight ? 'text-bg-high' : 'text-bone'}`}>{p.desc}</p>
+                  <div className="mt-auto">
+                    <div className={`w-10 h-10 rounded-pill flex items-center justify-center transition-colors ${p.highlight ? 'bg-bg-base text-lime' : 'bg-rule text-cream group-hover:bg-lime group-hover:text-bg-base'}`}>
+                      <ArrowRight className="w-5 h-5"/>
+                    </div>
                   </div>
-                </div>
-              </Card>
+                </Card>
+              </Link>
             </FadeIn>
           ))}
         </div>
@@ -255,20 +349,44 @@ function ProductsSection() {
 }
 
 function GiftCardsSection() {
-  const cards = [
-    { name: 'Amazon', rate: '₦1,150 / $', color: 'bg-orange-500/10 border-orange-500/20' },
-    { name: 'iTunes / Apple', rate: '₦1,020 / $', color: 'bg-blue-500/10 border-blue-500/20' },
-    { name: 'Steam', rate: '₦1,350 / $', color: 'bg-slate-700/20 border-slate-700/40' },
-    { name: 'Google Play', rate: '₦1,100 / $', color: 'bg-green-500/10 border-green-500/20' },
-    { name: 'eBay', rate: '₦1,050 / $', color: 'bg-red-500/10 border-red-500/20' },
-    { name: 'Walmart', rate: '₦1,120 / $', color: 'bg-blue-600/10 border-blue-600/20' },
-    { name: 'Target', rate: '₦1,080 / $', color: 'bg-red-600/10 border-red-600/20' },
-    { name: 'Best Buy', rate: '₦1,140 / $', color: 'bg-yellow-500/10 border-yellow-500/20' },
-    { name: 'Sephora', rate: '₦1,200 / $', color: 'bg-pink-500/10 border-pink-500/20' },
-    { name: 'Nordstrom', rate: '₦1,090 / $', color: 'bg-stone-500/10 border-stone-500/20' },
-    { name: 'Macy\'s', rate: '₦950 / $', color: 'bg-red-800/10 border-red-800/20' },
-    { name: 'Nike', rate: '₦1,000 / $', color: 'bg-zinc-500/10 border-zinc-500/20' },
+  const [activeCurrency, setActiveCurrency] = useState('USD');
+
+  // Multipliers relative to USD (which is 1.0)
+  const currencyMultipliers: Record<string, { multiplier: number, prefix: string }> = {
+    USD: { multiplier: 1.0, prefix: '$' },
+    GBP: { multiplier: 1.25, prefix: '£' },
+    EUR: { multiplier: 1.08, prefix: '€' },
+    CAD: { multiplier: 0.73, prefix: 'CA$' },
+    AUD: { multiplier: 0.66, prefix: 'A$' },
+    CHF: { multiplier: 1.11, prefix: 'CHF' },
+    NZD: { multiplier: 0.61, prefix: 'NZ$' },
+  };
+
+  const baseCards = [
+    { name: 'Amazon', baseRate: 1150, color: 'bg-orange-500/10 border-orange-500/20' },
+    { name: 'iTunes / Apple', baseRate: 1020, color: 'bg-blue-500/10 border-blue-500/20' },
+    { name: 'Steam', baseRate: 1350, color: 'bg-slate-700/20 border-slate-700/40' },
+    { name: 'Google Play', baseRate: 1100, color: 'bg-green-500/10 border-green-500/20' },
+    { name: 'eBay', baseRate: 1050, color: 'bg-red-500/10 border-red-500/20' },
+    { name: 'Walmart', baseRate: 1120, color: 'bg-blue-600/10 border-blue-600/20' },
+    { name: 'Target', baseRate: 1080, color: 'bg-red-600/10 border-red-600/20' },
+    { name: 'Best Buy', baseRate: 1140, color: 'bg-yellow-500/10 border-yellow-500/20' },
+    { name: 'Sephora', baseRate: 1200, color: 'bg-pink-500/10 border-pink-500/20' },
+    { name: 'Nordstrom', baseRate: 1090, color: 'bg-stone-500/10 border-stone-500/20' },
+    { name: 'Macy\'s', baseRate: 950, color: 'bg-red-800/10 border-red-800/20' },
+    { name: 'Nike', baseRate: 1000, color: 'bg-zinc-500/10 border-zinc-500/20' },
   ];
+
+  const currentCurrency = currencyMultipliers[activeCurrency] || { multiplier: 1.0, prefix: '$' };
+
+  const cards = baseCards.map(c => {
+    const rateVal = Math.round(c.baseRate * currentCurrency.multiplier);
+    return {
+      name: c.name,
+      rate: `₦${rateVal.toLocaleString()} / ${currentCurrency.prefix}`,
+      color: c.color
+    };
+  });
 
   return (
     <section className="py-24 px-6 border-b border-rule overflow-hidden">
@@ -280,8 +398,18 @@ function GiftCardsSection() {
             </h2>
           </FadeIn>
           <FadeIn delay={0.2} className="flex gap-2 bg-bg-elev p-1 rounded-pill border border-rule overflow-x-auto w-full md:w-auto snap-x hide-scrollbar">
-            {['USD', 'GBP', 'EUR', 'CAD', 'AUD', 'CHF', 'NZD'].map((c, i) => (
-              <button key={c} className={`px-4 py-2 rounded-pill text-sm font-medium transition-colors shrink-0 snap-start ${i === 0 ? 'bg-rule text-cream' : 'text-bone hover:text-cream'}`}>{c}</button>
+            {['USD', 'GBP', 'EUR', 'CAD', 'AUD', 'CHF', 'NZD'].map((c) => (
+              <button 
+                key={c} 
+                onClick={() => setActiveCurrency(c)}
+                className={`px-4 py-2 rounded-pill text-sm font-semibold transition-all shrink-0 snap-start ${
+                  activeCurrency === c 
+                    ? 'bg-lime text-bg-base font-bold shadow-sm' 
+                    : 'text-bone hover:text-cream hover:bg-rule/40'
+                }`}
+              >
+                {c}
+              </button>
             ))}
           </FadeIn>
         </div>
@@ -290,10 +418,12 @@ function GiftCardsSection() {
            <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-8 hide-scrollbar">
              {cards.map((c, i) => (
                <FadeIn key={c.name} delay={i * 0.05} className="shrink-0 w-64 snap-start">
-                 <div className={`p-6 rounded-3 border ${c.color} h-36 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-pointer`}>
-                   <div className="font-display font-bold text-cream text-lg">{c.name}</div>
-                   <div className="font-mono text-sm text-bone">{c.rate}</div>
-                 </div>
+                 <Link to="/signup" className="block">
+                   <div className={`p-6 rounded-3 border ${c.color} h-36 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-pointer hover:border-lime-line/50`}>
+                     <div className="font-display font-bold text-cream text-lg">{c.name}</div>
+                     <div className="font-mono text-sm text-bone">{c.rate}</div>
+                   </div>
+                 </Link>
                </FadeIn>
              ))}
            </div>
@@ -324,6 +454,42 @@ function GiftCardsSection() {
 function HowItWorksSection() {
   const [tab, setTab] = useState('buy');
 
+  const tabs = [
+    { label: 'Buy Crypto', id: 'buy' },
+    { label: 'Sell Crypto', id: 'sell' },
+    { label: 'Trade P2P', id: 'p2p' },
+    { label: 'Sell Gift Card', id: 'gift' }
+  ];
+
+  const STEPS_CONTENT: Record<string, { title: string, desc: string }[]> = {
+    buy: [
+      { title: "Open a free account", desc: "Sign up with your email and phone number in seconds." },
+      { title: "Verify identity", desc: "Complete a quick KYC check with biometric verification to unlock high limits." },
+      { title: "Fund your wallet", desc: "Deposit cash balance via instant bank transfer, card, or local mobile money." },
+      { title: "Buy crypto in one tap", desc: "Convert NGN directly to BTC, ETH or stablecoins instantly with zero hidden fees." }
+    ],
+    sell: [
+      { title: "Deposit your coins", desc: "Send crypto from any external platform directly to your protected Voltex deposit address." },
+      { title: "Input cash-out amount", desc: "Specify the exact crypto portion you want to sell for premium local Naira." },
+      { title: "Automatic conversion", desc: "Our live trading engine instantly sells your coins at top tier rates." },
+      { title: "Receive fast bank transfer", desc: "Enjoy automated payments delivered directly to your verified local financial institution." }
+    ],
+    p2p: [
+      { title: "Browse vetted merchants", desc: "Check live buy and sell orders from hundreds of highly-rated verified peer traders." },
+      { title: "Lock assets in secure escrow", desc: "Specify your trade. The Voltex master contract locks the seller's crypto safely." },
+      { title: "Direct bank transfer", desc: "Send payment to the vendor's bank account and click 'I have paid'." },
+      { title: "Asset released to app", desc: "Escrow unlocks instantly as soon as payment clearing is completed. Seamless safety." }
+    ],
+    gift: [
+      { title: "Select card brand & region", desc: "Choose from Amazon, Apple, Google, Walmart, Sephora, Nordstrom & many more." },
+      { title: "Upload visual evidence", desc: "Add card pin scratch, full physical card photos, clear buyer store receipt or e-voucher." },
+      { title: "Rapid human review", desc: "Voltex desk personnel verify the balance on live developer ledgers in under 4 minutes." },
+      { title: "Naira cash payout", desc: "Convert balance immediately to spendable NGN and withdraw instantly." }
+    ]
+  };
+
+  const activeSteps = STEPS_CONTENT[tab] || STEPS_CONTENT.buy;
+
   return (
     <section className="py-24 px-6 border-b border-rule bg-bg-elev">
       <div className="max-w-7xl mx-auto">
@@ -335,49 +501,50 @@ function HowItWorksSection() {
 
         <Card className="max-w-4xl mx-auto flex flex-col md:flex-row overflow-hidden border-rule-strong p-0">
           <div className="md:w-1/3 border-b md:border-b-0 md:border-r border-rule bg-bg-high p-4 flex flex-row md:flex-col gap-2 overflow-x-auto">
-            {['Buy Crypto', 'Sell Crypto', 'Trade P2P', 'Sell Gift Card'].map((t, i) => {
-              const id = t.split(' ')[0].toLowerCase();
+            {tabs.map((t) => {
               return (
                 <button 
-                  key={t}
-                  onClick={() => setTab(id)}
-                  className={`text-left px-4 py-4 rounded-2 text-sm font-bold transition-colors whitespace-nowrap ${tab === id ? 'bg-rule text-lime' : 'text-bone hover:text-cream hover:bg-rule-soft'}`}
+                  key={t.id}
+                  onClick={() => setTab(t.id)}
+                  className={`text-left px-4 py-4 rounded-2 text-sm font-bold transition-all whitespace-nowrap ${
+                    tab === t.id 
+                      ? 'bg-rule text-lime border-l-2 border-lime pl-3 md:pl-4 shadow-sm' 
+                      : 'text-bone hover:text-cream hover:bg-rule-soft'
+                  }`}
                 >
-                  {t}
+                  {t.label}
                 </button>
               )
             })}
           </div>
-          <div className="p-8 md:p-12 md:w-2/3">
+          <div className="p-8 md:p-12 md:w-2/3 flex flex-col justify-between">
             <div className="space-y-10">
-               <div className="flex gap-6">
-                 <div className="shrink-0 w-8 h-8 rounded-pill bg-lime/10 text-lime font-mono text-sm flex items-center justify-center font-bold border border-lime-line">1</div>
-                 <div>
-                   <h4 className="font-display font-bold text-xl mb-1">Open a free account</h4>
-                   <p className="text-bone text-sm leading-relaxed">Sign up with your email and phone number in seconds.</p>
-                 </div>
-               </div>
-               <div className="flex gap-6">
-                 <div className="shrink-0 w-8 h-8 rounded-pill bg-lime/10 text-lime font-mono text-sm flex items-center justify-center font-bold border border-lime-line">2</div>
-                 <div>
-                   <h4 className="font-display font-bold text-xl mb-1">Verify identity</h4>
-                   <p className="text-bone text-sm leading-relaxed">Complete a quick KYC check to unlock your trading limits.</p>
-                 </div>
-               </div>
-               <div className="flex gap-6">
-                 <div className="shrink-0 w-8 h-8 rounded-pill bg-lime/10 text-lime font-mono text-sm flex items-center justify-center font-bold border border-lime-line">3</div>
-                 <div>
-                   <h4 className="font-display font-bold text-xl mb-1">Fund your wallet</h4>
-                   <p className="text-bone text-sm leading-relaxed">Deposit NGN via bank transfer, card, or mobile money.</p>
-                 </div>
-               </div>
-               <div className="flex gap-6">
-                 <div className="shrink-0 w-8 h-8 rounded-pill bg-lime/10 text-lime font-mono text-sm flex items-center justify-center font-bold border border-lime-line">4</div>
-                 <div>
-                   <h4 className="font-display font-bold text-xl mb-1">Trade in one tap</h4>
-                   <p className="text-bone text-sm leading-relaxed">Execute your trade with zero hidden fees and instant settlement.</p>
-                 </div>
-               </div>
+               {activeSteps.map((step, idx) => (
+                 <motion.div 
+                   key={`${tab}-${idx}`}
+                   initial={{ opacity: 0, x: 10 }}
+                   animate={{ opacity: 1, x: 0 }}
+                   transition={{ duration: 0.3, delay: idx * 0.05 }}
+                   className="flex gap-6"
+                 >
+                   <div className="shrink-0 w-8 h-8 rounded-pill bg-lime/10 text-lime font-mono text-sm flex items-center justify-center font-bold border border-lime-line">
+                     {idx + 1}
+                   </div>
+                   <div>
+                     <h4 className="font-display font-bold text-xl mb-1">{step.title}</h4>
+                     <p className="text-bone text-sm leading-relaxed">{step.desc}</p>
+                   </div>
+                 </motion.div>
+               ))}
+            </div>
+
+            <div className="mt-12 pt-6 border-t border-rule/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+               <span className="text-xs text-bone">Ready to begin? Setup is completely free.</span>
+               <Link to="/signup" className="w-full sm:w-auto">
+                  <Button className="w-full sm:w-auto bg-lime hover:bg-lime/90 font-bold text-bg-base text-xs h-9 px-4 rounded-pill">
+                     Try "{tabs.find(x => x.id === tab)?.label}" Now
+                  </Button>
+               </Link>
             </div>
           </div>
         </Card>

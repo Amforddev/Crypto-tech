@@ -41,7 +41,9 @@ export default function Dashboard() {
           <p className="text-bone text-sm mt-1">Here's your portfolio at a glance · updated 4s ago</p>
         </div>
         <div className="flex items-center gap-3 w-full sm:w-auto">
-          <Button variant="secondary" className="flex-1 sm:flex-none">Deposit</Button>
+          <Link to="/app/wallet" state={{ openModal: 'deposit' }} className="flex-1 sm:flex-none">
+            <Button variant="secondary" className="w-full">Deposit</Button>
+          </Link>
           <Link to="/app/trade" className="flex-1 sm:flex-none">
             <Button className="w-full">Trade</Button>
           </Link>
@@ -133,10 +135,10 @@ export default function Dashboard() {
               <h3 className="text-sm font-medium text-bone mb-4">Available NGN Balance</h3>
               <div className="text-3xl font-display font-bold text-cream tabular-nums mb-6">₦450,200.00</div>
               <div className="flex gap-3">
-                 <Link to="/app/wallet" className="flex-1">
+                 <Link to="/app/wallet" state={{ openModal: 'withdraw' }} className="flex-1">
                     <Button variant="secondary" className="w-full h-10 text-xs">Withdraw</Button>
                  </Link>
-                 <Link to="/app/wallet" className="flex-1">
+                 <Link to="/app/wallet" state={{ openModal: 'deposit' }} className="flex-1">
                     <Button className="w-full h-10 text-xs">Deposit</Button>
                  </Link>
               </div>
