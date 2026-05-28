@@ -43,7 +43,7 @@ export default function Notifications() {
             {DUMMY_NOTIFS.map((item) => (
                <div key={item.id} className={`p-4 sm:p-6 flex gap-4 hover:bg-rule-soft transition-colors cursor-pointer ${!item.read ? 'bg-bg-elev/30' : ''}`}>
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${item.bg} ${item.color}`}>
-                     {React.cloneElement(item.icon as React.ReactElement, { className: 'w-5 h-5' })}
+                     {React.cloneElement(item.icon as React.ReactElement<any>, { className: 'w-5 h-5' })}
                   </div>
                   <div className="flex-1">
                      <div className="flex justify-between items-start gap-4 mb-1">

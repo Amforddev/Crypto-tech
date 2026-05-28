@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, Button, Input } from '../components/ui';
-import { MessageSquare, Headset, BookOpen, Send, HelpCircle, ChevronRight, FileQuestion, Mail } from 'lucide-react';
+import { MessageSquare, Headset, BookOpen, Send, HelpCircle, ChevronRight, FileQuestion, Mail, ShieldAlert } from 'lucide-react';
 
 export default function Support() {
   return (
@@ -44,6 +45,22 @@ export default function Support() {
             <Button variant="secondary" className="w-full">support@example.com</Button>
          </Card>
       </div>
+
+      {/* Dispute Center Banner CTA */}
+      <Card className="p-6 border-rust/40 bg-rust/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+         <div className="flex gap-4 items-start sm:items-center">
+            <div className="w-12 h-12 rounded-2 bg-rust/10 text-rust flex items-center justify-center shrink-0 border border-rust/20">
+               <ShieldAlert className="w-6 h-6" />
+            </div>
+            <div>
+               <h3 className="font-bold text-cream text-lg mb-1">P2P Trade Dispute Center</h3>
+               <p className="text-bone text-sm">Have an active P2P trade, buy/sell system issue, or payment release dispute? Track and manage your active disputes directly.</p>
+            </div>
+         </div>
+         <Link to="/app/disputes" className="w-full md:w-auto shrink-0">
+            <Button className="w-full md:w-auto bg-rust text-white border-rust hover:bg-[#8F270F] shadow-[0_2px_0_#7A220F] rounded-1">Manage Active Disputes</Button>
+         </Link>
+      </Card>
 
       <div className="grid lg:grid-cols-2 gap-8 pt-8">
          <div>

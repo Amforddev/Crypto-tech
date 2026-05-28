@@ -117,7 +117,7 @@ function HeroSection() {
                   <span className="font-mono">1 BTC = ₦35,120,400</span>
                   <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-lime"></span> Updated 3s ago</span>
                 </div>
-                <Link to="/app" className="block w-full">
+                <Link to="/login" className="block w-full">
                   <Button className="w-full h-12 text-sm">Buy now</Button>
                 </Link>
               </div>
@@ -264,10 +264,14 @@ function GiftCardsSection() {
     { name: 'Walmart', rate: '₦1,120 / $', color: 'bg-blue-600/10 border-blue-600/20' },
     { name: 'Target', rate: '₦1,080 / $', color: 'bg-red-600/10 border-red-600/20' },
     { name: 'Best Buy', rate: '₦1,140 / $', color: 'bg-yellow-500/10 border-yellow-500/20' },
+    { name: 'Sephora', rate: '₦1,200 / $', color: 'bg-pink-500/10 border-pink-500/20' },
+    { name: 'Nordstrom', rate: '₦1,090 / $', color: 'bg-stone-500/10 border-stone-500/20' },
+    { name: 'Macy\'s', rate: '₦950 / $', color: 'bg-red-800/10 border-red-800/20' },
+    { name: 'Nike', rate: '₦1,000 / $', color: 'bg-zinc-500/10 border-zinc-500/20' },
   ];
 
   return (
-    <section className="py-24 px-6 border-b border-rule">
+    <section className="py-24 px-6 border-b border-rule overflow-hidden">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
           <FadeIn>
@@ -275,22 +279,24 @@ function GiftCardsSection() {
               Cards, cashed.<br/>Live rates. <i className="font-serif font-normal italic text-bone">Live humans.</i>
             </h2>
           </FadeIn>
-          <FadeIn delay={0.2} className="flex gap-2 bg-bg-elev p-1 rounded-pill border border-rule">
-            {['USD', 'GBP', 'EUR', 'CAD'].map((c, i) => (
-              <button key={c} className={`px-4 py-2 rounded-pill text-sm font-medium transition-colors ${i === 0 ? 'bg-rule text-cream' : 'text-bone hover:text-cream'}`}>{c}</button>
+          <FadeIn delay={0.2} className="flex gap-2 bg-bg-elev p-1 rounded-pill border border-rule overflow-x-auto w-full md:w-auto snap-x hide-scrollbar">
+            {['USD', 'GBP', 'EUR', 'CAD', 'AUD', 'CHF', 'NZD'].map((c, i) => (
+              <button key={c} className={`px-4 py-2 rounded-pill text-sm font-medium transition-colors shrink-0 snap-start ${i === 0 ? 'bg-rule text-cream' : 'text-bone hover:text-cream'}`}>{c}</button>
             ))}
           </FadeIn>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
-          {cards.map((c, i) => (
-            <FadeIn key={c.name} delay={i * 0.05}>
-              <div className={`p-6 rounded-3 border ${c.color} h-32 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-pointer`}>
-                <div className="font-display font-bold text-cream text-lg">{c.name}</div>
-                <div className="font-mono text-sm text-bone">{c.rate}</div>
-              </div>
-            </FadeIn>
-          ))}
+        <div className="w-full relative group">
+           <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-8 hide-scrollbar">
+             {cards.map((c, i) => (
+               <FadeIn key={c.name} delay={i * 0.05} className="shrink-0 w-64 snap-start">
+                 <div className={`p-6 rounded-3 border ${c.color} h-36 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-pointer`}>
+                   <div className="font-display font-bold text-cream text-lg">{c.name}</div>
+                   <div className="font-mono text-sm text-bone">{c.rate}</div>
+                 </div>
+               </FadeIn>
+             ))}
+           </div>
         </div>
 
         <FadeIn delay={0.4} className="grid md:grid-cols-3 gap-8 pt-16 border-t border-rule-soft">

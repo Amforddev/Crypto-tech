@@ -26,7 +26,7 @@ export default function AdminDashboard() {
             </button>
             <button className="w-full flex items-center gap-3 p-3 rounded-2 flex justify-between text-bone hover:bg-rule-soft hover:text-cream text-sm font-medium transition-colors">
                <div className="flex items-center gap-3"><ShieldAlert className="w-4 h-4" /> KYC Approvals</div>
-               <Chip variant="warning">12</Chip>
+               <Chip variant="warn">12</Chip>
             </button>
          </div>
          <div className="p-4 border-t border-rule text-xs text-bone text-center">

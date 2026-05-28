@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Input, Label, Chip } from '../components/ui';
 import { ArrowDownUp, RefreshCw, ChevronDown, Check, Info, Wallet, CreditCard, Building, Smartphone, Settings, ArrowRight, X } from 'lucide-react';
-import { AreaChart, Area, ResponsiveContainer, Tooltip } from 'recharts';
+import { AreaChart, Area, ResponsiveContainer, Tooltip, BarChart, Bar, Cell, XAxis, YAxis } from 'recharts';
 import { motion, AnimatePresence } from 'motion/react';
 
 const chartData = Array.from({ length: 40 }).map((_, i) => ({
@@ -126,7 +126,7 @@ function BuyForm() {
       <div className="space-y-2">
         <div className="flex justify-between text-sm">
           <Label className="mb-0">You Pay</Label>
-          <div className="text-bone">Balance: <span className="font-mono text-cream">₦450,200.00</span> <button className="text-lime hover:underline ml-1">Max</button></div>
+          <div className="text-bone">Balance: <span className="font-mono text-cream">₦450,200.00</span> <button className="text-lime hover:underline ml-1" onClick={() => setAmount('450200')}>Max</button></div>
         </div>
         <div className="relative group">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -227,6 +227,7 @@ function SellForm() {
   const [sellAsset, setSellAsset] = useState('btc');
   const [receiveAsset, setReceiveAsset] = useState('ngn');
   const [destination, setDestination] = useState<'balance' | 'bank'>('balance');
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const cryptoOptions = [
      { value: 'btc', label: 'BTC', icon: <div className="w-5 h-5 rounded-full bg-[#F7931A] flex items-center justify-center text-white text-xs font-bold shrink-0">₿</div> },
@@ -247,7 +248,7 @@ function SellForm() {
       <div className="space-y-2">
         <div className="flex justify-between text-sm">
           <Label className="mb-0">You Sell</Label>
-          <div className="text-bone">Balance: <span className="font-mono text-cream">1.45 {sellAsset.toUpperCase()}</span> <button className="text-lime hover:underline ml-1">Max</button></div>
+          <div className="text-bone">Balance: <span className="font-mono text-cream">1.45 {sellAsset.toUpperCase()}</span> <button className="text-lime hover:underline ml-1" onClick={() => setAmount('1.45')}>Max</button></div>
         </div>
         <div className="relative group">
           <Input type="text" value={amount} onChange={e => setAmount(e.target.value)} className="text-lg font-mono h-14 pl-4" />
@@ -304,7 +305,9 @@ function SellForm() {
          </div>
       </div>
 
-      <Button className="w-full h-14 text-base mt-2 bg-rust hover:bg-rust/90 shadow-[0_2px_0_#A1351A] focus-visible:ring-rust">Sell {sellAsset.toUpperCase()}</Button>
+      <Button className="w-full h-14 text-base mt-2 bg-rust hover:bg-rust/90 shadow-[0_2px_0_#A1351A] focus-visible:ring-rust" onClick={() => setShowConfirm(true)}>Sell {sellAsset.toUpperCase()}</Button>
+      
+      {showConfirm && <ConfirmModal type="Sell" amount={amount} asset={sellAsset.toUpperCase()} fiat="₦5,268,060.00" onClose={() => setShowConfirm(false)} />}
     </div>
   );
 }
@@ -398,13 +401,22 @@ function SwapForm() {
 function ConfirmModal({ type, amount, asset, fiat, onClose }: any) {
   const [step, setStep] = useState<'confirm' | 'success'>('confirm');
   const [timeLeft, setTimeLeft] = useState(10);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (step === 'confirm' && timeLeft > 0) {
+    if (step === 'confirm' && !isSubmitting && timeLeft > 0) {
       const t = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
       return () => clearTimeout(t);
     }
-  }, [timeLeft, step]);
+  }, [timeLeft, step, isSubmitting]);
+
+  const handleConfirm = () => {
+     setIsSubmitting(true);
+     setTimeout(() => {
+        setIsSubmitting(false);
+        setStep('success');
+     }, 1500);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-bg-base/80 backdrop-blur-sm">
@@ -416,9 +428,9 @@ function ConfirmModal({ type, amount, asset, fiat, onClose }: any) {
                  <button onClick={onClose} className="text-bone hover:text-cream"><X className="w-5 h-5" /></button>
               </div>
               <div className="text-center py-6">
-                 <div className="text-sm text-bone mb-2">You will receive</div>
-                 <div className="text-4xl font-display font-bold text-lime mb-2">{amount} {asset}</div>
-                 <div className="text-bone text-sm font-mono">Cost: {fiat}</div>
+                 <div className="text-sm text-bone mb-2">You will {type === 'Buy' ? 'receive' : 'sell'}</div>
+                 <div className={`text-4xl font-display font-bold mb-2 ${type === 'Buy' ? 'text-lime' : 'text-rust'}`}>{amount} {asset}</div>
+                 <div className="text-bone text-sm font-mono">{type === 'Buy' ? 'Cost' : 'Receive'}: {fiat}</div>
               </div>
               
               <div className="bg-bg-elev border border-rule rounded-2 p-4 space-y-3 text-sm mb-8">
@@ -441,18 +453,18 @@ function ConfirmModal({ type, amount, asset, fiat, onClose }: any) {
                     </svg>
                     <span className="text-xs font-mono font-bold">{timeLeft}s</span>
                  </div>
-                 <Button className="flex-1 h-12 text-base" onClick={() => setStep('success')} disabled={timeLeft === 0}>
-                   {timeLeft === 0 ? 'Rate expired' : 'Confirm Buy'}
+                 <Button className="flex-1 h-12 text-base relative" onClick={handleConfirm} disabled={timeLeft === 0 || isSubmitting} style={type === 'Sell' ? { backgroundColor: 'var(--color-rust)', borderColor: 'var(--color-rust)', color: 'white', boxShadow: '0 2px 0 #A1351A' } : {}}>
+                   {isSubmitting ? <RefreshCw className="w-5 h-5 animate-spin mx-auto text-white" /> : (timeLeft === 0 ? 'Rate expired' : `Confirm ${type}`)}
                  </Button>
               </div>
            </div>
         ) : (
            <div className="p-8 text-center flex flex-col items-center">
-              <div className="w-20 h-20 bg-lime-tint border border-lime rounded-full flex items-center justify-center mb-6">
-                <Check className="w-10 h-10 text-lime" />
+              <div className={`w-20 h-20 border rounded-full flex items-center justify-center mb-6 ${type === 'Buy' ? 'bg-lime-tint border-lime' : 'bg-lime-tint border-lime'}`}>
+                <Check className={`w-10 h-10 ${type === 'Buy' ? 'text-lime' : 'text-lime'}`} />
               </div>
               <h3 className="text-2xl font-display font-bold text-cream mb-2">Order Successful!</h3>
-              <p className="text-bone mb-8">You successfully bought <span className="text-cream font-bold">{amount} {asset}</span> for {fiat}. Your balance has been updated.</p>
+              <p className="text-bone mb-8">You successfully {type === 'Buy' ? 'bought' : 'sold'} <span className="text-cream font-bold">{amount} {asset}</span>. Your balance has been updated.</p>
               <Button className="w-full h-12" onClick={onClose} variant="secondary">Done</Button>
            </div>
         )}
@@ -464,6 +476,27 @@ function ConfirmModal({ type, amount, asset, fiat, onClose }: any) {
 function ChartPanel() {
   const [tab, setTab] = useState('1D');
   const [chartType, setChartType] = useState<'line'|'candle'>('line');
+
+  // Generate fake candle data based on the line chart data
+  const candleData = chartData.map((d, i) => {
+    const open = d.price - (Math.random() * 200000);
+    const close = d.price + (Math.random() * 200000);
+    const high = Math.max(open, close) + Math.random() * 100000;
+    const low = Math.min(open, close) - Math.random() * 100000;
+    return {
+      time: d.time,
+      open,
+      close,
+      high,
+      low,
+      isUp: close >= open,
+      // For simple composed chart rendering:
+      bodyBottom: Math.min(open, close),
+      bodyLength: Math.abs(close - open),
+      wickBottom: low,
+      wickTop: high
+    };
+  });
 
   return (
     <Card className="p-6 flex flex-col h-[400px]">
@@ -491,21 +524,41 @@ function ChartPanel() {
 
        <div className="flex-1 w-full min-h-0">
           <ResponsiveContainer width="100%" height="100%">
-             <AreaChart data={chartData}>
-               <defs>
-                 <linearGradient id="chartColor" x1="0"y1="0" x2="0" y2="1">
-                   <stop offset="5%" stopColor="var(--color-lime)" stopOpacity={0.2}/>
-                   <stop offset="95%" stopColor="var(--color-lime)" stopOpacity={0}/>
-                 </linearGradient>
-               </defs>
-               <Tooltip 
-                 contentStyle={{ backgroundColor: 'var(--color-bg-elev)', border: '1px solid var(--color-rule)', borderRadius: '6px' }}
-                 itemStyle={{ color: 'var(--color-cream)' }}
-                 formatter={(value: number) => [`₦${value.toLocaleString(undefined, {maximumFractionDigits:0})}`]}
-                 labelStyle={{ display: 'none' }}
-               />
-               <Area type="monotone" dataKey="price" stroke="var(--color-lime)" strokeWidth={2} fillOpacity={1} fill="url(#chartColor)" />
-             </AreaChart>
+             {chartType === 'line' ? (
+                <AreaChart data={chartData}>
+                  <defs>
+                    <linearGradient id="chartColor" x1="0"y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--color-lime)" stopOpacity={0.2}/>
+                      <stop offset="95%" stopColor="var(--color-lime)" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: 'var(--color-bg-elev)', border: '1px solid var(--color-rule)', borderRadius: '6px' }}
+                    itemStyle={{ color: 'var(--color-cream)' }}
+                    formatter={(value: number) => [`₦${value.toLocaleString(undefined, {maximumFractionDigits:0})}`]}
+                    labelStyle={{ display: 'none' }}
+                  />
+                  <Area type="monotone" dataKey="price" stroke="var(--color-lime)" strokeWidth={2} fillOpacity={1} fill="url(#chartColor)" />
+                </AreaChart>
+             ) : (
+                <BarChart data={candleData} barCategoryGap="20%">
+                  <YAxis domain={['dataMin - 1000000', 'auto']} hide />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: 'var(--color-bg-elev)', border: '1px solid var(--color-rule)', borderRadius: '6px' }}
+                    cursor={{fill: 'var(--color-bg-elev)'}}
+                    labelStyle={{ display: 'none' }}
+                    formatter={(value: any, name: string, props: any) => {
+                       if (name === 'bodyLength') return [`₦${props.payload.close.toLocaleString(undefined, {maximumFractionDigits:0})}`, 'Price'];
+                       return [];
+                    }}
+                  />
+                  <Bar dataKey="bodyLength" stackId="a">
+                    {candleData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.isUp ? 'var(--color-lime)' : 'var(--color-rust)'} />
+                    ))}
+                  </Bar>
+                </BarChart>
+             )}
           </ResponsiveContainer>
        </div>
     </Card>
@@ -513,13 +566,37 @@ function ChartPanel() {
 }
 
 function RecentFills() {
-  const fills = [
-    { type: 'buy', price: '35,120,400', amount: '0.0412', time: '14:24:02' },
-    { type: 'sell', price: '35,119,800', amount: '0.1054', time: '14:23:55' },
-    { type: 'buy', price: '35,118,500', amount: '0.0050', time: '14:23:10' },
-    { type: 'buy', price: '35,118,200', amount: '1.2400', time: '14:22:45' },
-    { type: 'sell', price: '35,122,100', amount: '0.0801', time: '14:20:12' },
-  ];
+  const [fills, setFills] = useState([
+    { id: 1, type: 'buy', price: '35,120,400', amount: '0.0412', time: '14:24:02' },
+    { id: 2, type: 'sell', price: '35,119,800', amount: '0.1054', time: '14:23:55' },
+    { id: 3, type: 'buy', price: '35,118,500', amount: '0.0050', time: '14:23:10' },
+    { id: 4, type: 'buy', price: '35,118,200', amount: '1.2400', time: '14:22:45' },
+    { id: 5, type: 'sell', price: '35,122,100', amount: '0.0801', time: '14:20:12' },
+  ]);
+
+  useEffect(() => {
+     const interval = setInterval(() => {
+        setFills(prev => {
+           const isBuy = Math.random() > 0.5;
+           const newPriceInt = 35120400 + Math.floor(Math.random() * 5000) - 2500;
+           const newPrice = newPriceInt.toLocaleString();
+           const newAmount = (Math.random() * 0.5).toFixed(4);
+           const now = new Date();
+           const newTime = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds().toString().padStart(2, '0')}`;
+           
+           const newFill = {
+              id: Date.now(),
+              type: isBuy ? 'buy' : 'sell',
+              price: newPrice,
+              amount: newAmount,
+              time: newTime
+           };
+           
+           return [newFill, ...prev].slice(0, 5);
+        });
+     }, 3500);
+     return () => clearInterval(interval);
+  }, []);
 
   return (
     <Card className="p-4 sm:p-6 overflow-hidden">
@@ -534,13 +611,22 @@ function RecentFills() {
             </tr>
           </thead>
           <tbody>
-            {fills.map((f, i) => (
-              <tr key={i} className="font-mono text-xs sm:text-sm hover:bg-rule-soft transition-colors cursor-default">
-                <td className={`py-2 ${f.type === 'buy' ? 'text-good' : 'text-bad'}`}>{f.price}</td>
-                <td className="text-right py-2 text-cream">{f.amount}</td>
-                <td className="text-right py-2 text-bone">{f.time}</td>
-              </tr>
-            ))}
+            <AnimatePresence initial={false}>
+              {fills.map((f, i) => (
+                <motion.tr 
+                  key={f.id} 
+                  initial={{ opacity: 0, y: -10, backgroundColor: f.type === 'buy' ? 'rgba(0, 135, 81, 0.2)' : 'rgba(161, 53, 26, 0.2)' }}
+                  animate={{ opacity: 1, y: 0, backgroundColor: 'transparent' }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.4 }}
+                  className="font-mono text-xs sm:text-sm hover:bg-rule-soft cursor-default border-b border-rule/30"
+                >
+                  <td className={`py-2 px-1 ${f.type === 'buy' ? 'text-good' : 'text-bad'}`}>{f.price}</td>
+                  <td className="text-right py-2 px-1 text-cream">{f.amount}</td>
+                  <td className="text-right py-2 px-1 text-bone">{f.time}</td>
+                </motion.tr>
+              ))}
+            </AnimatePresence>
           </tbody>
         </table>
       </div>

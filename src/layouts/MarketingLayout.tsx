@@ -2,8 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import { Button } from '../components/ui';
 
+const INITIAL_CRYPTOS = [
+  { id: 'BTC', price: 35120400, change: 2.4, isUp: true },
+  { id: 'ETH', price: 2105300, change: 1.8, isUp: true },
+  { id: 'SOL', price: 142500, change: -4.2, isUp: false },
+  { id: 'USDT', price: 1650.00, change: 0.1, isUp: true },
+  { id: 'BNB', price: 520400, change: -1.2, isUp: false },
+  { id: 'XRP', price: 840.50, change: 0.5, isUp: true },
+  { id: 'ADA', price: 580.20, change: -2.1, isUp: false },
+  { id: 'DOGE', price: 185.40, change: 5.5, isUp: true },
+  { id: 'LINK', price: 21400, change: 5.1, isUp: true },
+  { id: 'DOT', price: 9800, change: -1.5, isUp: false }
+];
+
 export function MarketingLayout() {
   const [scrolled, setScrolled] = useState(false);
+  const [cryptos, setCryptos] = useState(INITIAL_CRYPTOS);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -13,15 +27,73 @@ export function MarketingLayout() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    const fetchPrices = async () => {
+      try {
+        const response = await fetch('https://api.coinbase.com/v2/exchange-rates?currency=USD');
+        const json = await response.json();
+        if (json && json.data && json.data.rates) {
+          const r = json.data.rates;
+          const ngnRate = parseFloat(r['NGN']) || 1650;
+          
+          setCryptos(prev => prev.map(item => {
+            const cryptoRate = r[item.id];
+            if (cryptoRate) {
+              const priceUSD = 1 / parseFloat(cryptoRate);
+              const priceNGN = priceUSD * ngnRate;
+              const simulatedChange = (Math.random() * 8) - 4; // -4% to +4%
+              return {
+                ...item,
+                price: priceNGN,
+                change: parseFloat(simulatedChange.toFixed(2)),
+                isUp: simulatedChange >= 0
+              };
+            }
+            return item;
+          }));
+        }
+      } catch (e) {
+        console.warn("Could not fetch real-time rates from Coinbase API, using active simulated feeds:", e);
+      }
+    };
+
+    fetchPrices();
+    const apiInterval = setInterval(fetchPrices, 40000); 
+    
+    // Live tick micro fluctuations for realism
+    const liveInterval = setInterval(() => {
+      setCryptos(prev => prev.map(item => {
+        const pct = 1 + ((Math.random() * 0.0006) - 0.0003);
+        return {
+          ...item,
+          price: item.price * pct
+        };
+      }));
+    }, 4000);
+
+    return () => {
+      clearInterval(apiInterval);
+      clearInterval(liveInterval);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col font-sans">
       {/* Ticker Bar Placeholder */}
-      <div className="h-10 bg-lime text-bg-base flex items-center overflow-hidden border-b border-rule font-mono text-sm whitespace-nowrap">
-        <div className="animate-[marquee_20s_linear_infinite] inline-block px-4 font-semibold w-full text-center">
-          BTC ₦35,120,400 <span className="text-lime-deep">▲ 2.4%</span> &nbsp;&nbsp;&nbsp;&nbsp; 
-          ETH ₦2,105,300 <span className="text-lime-deep">▲ 1.8%</span> &nbsp;&nbsp;&nbsp;&nbsp;
-          SOL ₦142,500 <span className="text-bad">▼ 4.2%</span> &nbsp;&nbsp;&nbsp;&nbsp;
-          USDT ₦1,650.00 <span className="text-lime-deep">▲ 0.1%</span>
+      <div className="h-[46px] bg-lime text-bg-base flex items-center overflow-hidden border-b border-rule font-mono text-xs sm:text-sm whitespace-nowrap">
+        <div className="flex w-max animate-marquee">
+          {Array(2).fill(0).map((_, i) => (
+            <div key={i} className="flex px-4 gap-8 font-semibold">
+              {cryptos.map(item => (
+                <span key={item.id} className="flex items-center gap-1.5">
+                  {item.id} ₦{item.price.toLocaleString(undefined, { maximumFractionDigits: item.price < 500 ? 2 : 0 })}
+                  <span className={`mix-blend-multiply flex items-center font-bold ${item.isUp ? 'text-[#1D6F42]' : 'text-[#A12B2B]'}`}>
+                    {item.isUp ? '▲' : '▼'} {Math.abs(item.change)}%
+                  </span>
+                </span>
+              ))}
+            </div>
+          ))}
         </div>
       </div>
 

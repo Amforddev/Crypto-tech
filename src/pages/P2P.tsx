@@ -170,7 +170,7 @@ export default function P2P() {
                        </div>
                     </td>
                     <td className="py-4 px-6 text-right w-[150px]">
-                       <Button className="w-full text-sm h-9" variant={tradeType === 'buy' ? 'primary' : 'default'} style={tradeType === 'sell' ? { backgroundColor: '#A1351A', borderColor: '#A1351A', color: 'white', boxShadow: '0 2px 0 #7A220F' } : {}} onClick={() => setActiveTrade(offer)}>
+                       <Button className="w-full text-sm h-9" variant={tradeType === 'buy' ? 'primary' : 'secondary'} style={tradeType === 'sell' ? { backgroundColor: '#A1351A', borderColor: '#A1351A', color: 'white', boxShadow: '0 2px 0 #7A220F' } : {}} onClick={() => setActiveTrade(offer)}>
                          {tradeType === 'buy' ? 'Buy' : 'Sell'} {offer.asset}
                        </Button>
                     </td>
@@ -188,6 +188,8 @@ function TradeRoom({ trade, onBack }: { trade: any, onBack: () => void }) {
   const isBuy = trade.type === 'buy';
   const [amount, setAmount] = useState(isBuy ? '100000' : '100');
   const [step, setStep] = useState<'create' | 'payment' | 'completed' | 'released'>('create');
+  const [hasVerifiedPayment, setHasVerifiedPayment] = useState(false);
+  const [isReleasing, setIsReleasing] = useState(false);
   
   const fiatAmount = isBuy ? amount : (parseFloat(amount || '0') * trade.price).toFixed(2);
   const cryptoAmount = isBuy ? (parseFloat(amount || '0') / trade.price).toFixed(2) : amount;
@@ -344,9 +346,33 @@ function TradeRoom({ trade, onBack }: { trade: any, onBack: () => void }) {
                           </div>
                        </div>
                     ) : (
-                       <div className="w-full">
-                          <Button className="w-full h-14 bg-lime text-bg-base hover:bg-lime-soft text-base font-bold shadow-[0_2px_0_#98D22C] mb-3" onClick={() => setStep('released')}>I have received payment</Button>
-                          <Button variant="secondary" className="w-full h-12">Appeal Order</Button>
+                       <div className="w-full mt-2 space-y-4 text-left">
+                          <div className="bg-bg-elev border border-rule rounded-3 p-4 space-y-3">
+                             <label className="flex items-start gap-3 cursor-pointer group">
+                                <div className="mt-0.5 relative flex items-center justify-center w-5 h-5 border border-rule-strong rounded bg-bg-base group-hover:border-lime transition-colors shrink-0">
+                                   <input type="checkbox" className="absolute opacity-0 inset-0 cursor-pointer" checked={hasVerifiedPayment} onChange={(e) => setHasVerifiedPayment(e.target.checked)} />
+                                   {hasVerifiedPayment && <CheckCircle2 className="w-4 h-4 text-lime" />}
+                                </div>
+                                <span className={hasVerifiedPayment ? 'text-cream' : 'text-bone transition-colors'}>I have logged into my bank account and confirmed the receipt of <strong>₦{parseFloat(fiatAmount).toLocaleString()}</strong>.</span>
+                             </label>
+                          </div>
+                          <div className="flex gap-3">
+                             <Button variant="secondary" className="flex-1 h-14">Appeal Order</Button>
+                             <Button 
+                               className="flex-[2] h-14 text-base font-bold relative" 
+                               style={hasVerifiedPayment ? { backgroundColor: 'var(--color-lime)', color: 'var(--color-bg-base)', boxShadow: '0 2px 0 #98D22C' } : { backgroundColor: 'var(--color-rule)', color: 'var(--color-bone)' }}
+                               disabled={!hasVerifiedPayment || isReleasing}
+                               onClick={() => {
+                                  setIsReleasing(true);
+                                  setTimeout(() => {
+                                     setIsReleasing(false);
+                                     setStep('released');
+                                  }, 1500);
+                               }}
+                             >
+                                {isReleasing ? <RefreshCw className="w-5 h-5 animate-spin mx-auto text-bg-base" /> : 'Release Crypto'}
+                             </Button>
+                          </div>
                        </div>
                     )}
                  </div>

@@ -1,6 +1,6 @@
 {
-  "name": "",
-  "description": "",
+  "name": "Crypto Whitelabel",
+  "description": "A centralized crypto exchange for the African market with trading, P2P, gift cards, and wallet features.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

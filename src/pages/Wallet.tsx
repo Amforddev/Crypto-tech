@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useToast } from '../components/Toast';
 import { Card, Button, Chip } from '../components/ui';
 import { AreaChart, Area, ResponsiveContainer, Tooltip } from 'recharts';
 import { Download, Send, RefreshCw, ArrowRightLeft, ArrowDownRight, Clock, Search, ChevronRight, X, Building, Wallet as WalletIcon, Check, Plus, AlertCircle, ChevronDown } from 'lucide-react';
@@ -262,6 +263,7 @@ function CustomSelect({ options, value, onChange }: { options: any[], value: str
 }
 
 function DepositModal({ onClose }: { onClose: () => void }) {
+  const { showToast } = useToast();
   const [asset, setAsset] = useState('ngn');
   const [network, setNetwork] = useState('trc20');
   
@@ -296,7 +298,10 @@ function DepositModal({ onClose }: { onClose: () => void }) {
                  <div className="text-xs text-bone mb-1">Account Number</div>
                  <div className="flex items-center justify-between">
                    <div className="text-2xl font-mono font-bold text-lime tracking-wider">9023418765</div>
-                   <Button variant="secondary" size="sm" className="h-8">Copy</Button>
+                   <Button variant="secondary" size="sm" className="h-8" onClick={() => {
+                     navigator.clipboard.writeText("9023418765");
+                     showToast("Account number copied! Send NGN bank transfers here.", "success");
+                   }}>Copy</Button>
                  </div>
                </div>
                <div>
@@ -310,7 +315,10 @@ function DepositModal({ onClose }: { onClose: () => void }) {
                <p className="text-xs leading-relaxed">Transfers to this bank account will automatically be credited to your NGN balance within 1-5 minutes.</p>
             </div>
             
-            <Button className="w-full mt-4" onClick={onClose}>Done</Button>
+            <Button className="w-full mt-4 bg-lime text-bg-base hover:bg-lime/90 font-bold" onClick={() => {
+              showToast("Transfer details submitted! Your wallet will reflect NGN automatically after bank clearance.", "info");
+              onClose();
+            }}>I've Made this Transfer</Button>
           </motion.div>
         ) : (
           <motion.div key="crypto-deposit" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-4 overflow-hidden pt-2">
@@ -324,7 +332,10 @@ function DepositModal({ onClose }: { onClose: () => void }) {
                  TY9vNQKX8T4...L8p9wB2z
                </div>
              </div>
-             <Button className="w-full mt-4">Copy Address</Button>
+             <Button className="w-full mt-4 bg-lime text-bg-base hover:bg-lime/90 font-bold" onClick={() => {
+                navigator.clipboard.writeText("TY9vNQKX8T4m7W1Yx9vL8p9wB2z");
+                showToast("Crypto deposit address copied!", "success");
+             }}>Copy Address</Button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -333,9 +344,13 @@ function DepositModal({ onClose }: { onClose: () => void }) {
 }
 
 function WithdrawModal({ onClose }: { onClose: () => void }) {
+  const { showToast } = useToast();
   const [asset, setAsset] = useState('ngn');
   const [bank, setBank] = useState('gtb');
   const [addingBank, setAddingBank] = useState(false);
+  const [amount, setAmount] = useState('');
+  const [step, setStep] = useState<'form' | 'success'>('form');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const assetOptions = [
     { value: 'ngn', label: 'NGN - Nigerian Naira', icon: <div className="w-5 h-5 rounded-full bg-[#008751] flex items-center justify-center shrink-0"><div className="w-1.5 h-full bg-white"></div></div> },
@@ -347,6 +362,35 @@ function WithdrawModal({ onClose }: { onClose: () => void }) {
     { value: 'zenith', label: 'Zenith Bank - ****2210' },
     { value: 'add_new', label: 'Add New Bank Account...', icon: <Plus className="w-4 h-4 text-lime" /> }
   ];
+
+  const availableBalance = asset === 'ngn' ? '450200' : '4500.25';
+
+  const handleMax = () => {
+    setAmount(availableBalance);
+  };
+
+  const handleConfirm = () => {
+    if (!amount || parseFloat(amount) <= 0) return;
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setStep('success');
+      showToast(`Withdrawal of ${parseFloat(amount).toLocaleString()} ${asset.toUpperCase()} successfully initiated!`, "success");
+    }, 1500);
+  };
+
+  if (step === 'success') {
+     return (
+        <div className="py-6 text-center flex flex-col items-center animate-in fade-in zoom-in duration-300">
+           <div className="w-20 h-20 bg-lime-tint border border-lime rounded-full flex items-center justify-center mb-6">
+             <Check className="w-10 h-10 text-lime" />
+           </div>
+           <h3 className="text-2xl font-display font-bold text-cream mb-2">Withdrawal Initiated!</h3>
+           <p className="text-bone mb-8">Your withdrawal of <span className="text-cream font-bold">{amount} {asset.toUpperCase()}</span> is being processed.</p>
+           <Button className="w-full h-12" onClick={onClose} variant="secondary">Done</Button>
+        </div>
+     );
+  }
 
   return (
     <div className="space-y-4">
@@ -396,13 +440,15 @@ function WithdrawModal({ onClose }: { onClose: () => void }) {
               )}
               <div className="space-y-2 pt-2">
                 <Label>Amount ({asset.toUpperCase()})</Label>
-                <Input type="number" placeholder="0.00" />
+                <Input type="number" placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)} />
                 <div className="flex justify-between text-xs text-bone">
                   <span>Available: {asset === 'ngn' ? '₦450,200.00' : '4,500.25 USDT'}</span>
-                  <button className="text-lime hover:underline">Max</button>
+                  <button className="text-lime hover:underline" onClick={handleMax}>Max</button>
                 </div>
               </div>
-              <Button className="w-full mt-4 bg-rust hover:bg-rust/90 shadow-[0_2px_0_#A1351A] focus-visible:ring-rust" onClick={onClose}>Confirm Withdrawal</Button>
+              <Button className="w-full mt-4 h-12 bg-rust hover:bg-rust/90 shadow-[0_2px_0_#A1351A] focus-visible:ring-rust text-base relative" onClick={handleConfirm} disabled={isSubmitting || !amount}>
+                 {isSubmitting ? <RefreshCw className="w-5 h-5 animate-spin mx-auto" /> : 'Confirm Withdrawal'}
+              </Button>
            </motion.div>
          </AnimatePresence>
       )}
@@ -411,13 +457,31 @@ function WithdrawModal({ onClose }: { onClose: () => void }) {
 }
 
 function SendModal({ onClose }: { onClose: () => void }) {
+  const { showToast } = useToast();
   const [asset, setAsset] = useState('usdt');
+  const [amount, setAmount] = useState('');
+  const [recipient, setRecipient] = useState('');
   const [step, setStep] = useState<'form' | 'success'>('form');
+  const [isSending, setIsSending] = useState(false);
 
   const assetOptions = [
     { value: 'usdt', label: 'USDT - Tether', icon: <div className="w-5 h-5 rounded-full bg-[#26A17B] flex items-center justify-center text-white text-[10px] font-bold">₮</div> },
     { value: 'btc', label: 'BTC - Bitcoin', icon: <div className="w-5 h-5 rounded-full bg-[#F7931A] flex items-center justify-center text-white text-[10px] font-bold">₿</div> }
   ];
+
+  const handleMax = () => {
+     setAmount(asset === 'usdt' ? '4500.25' : '0.1450');
+  };
+
+  const handleSend = () => {
+     if (!amount) return;
+     setIsSending(true);
+     setTimeout(() => {
+        setIsSending(false);
+        setStep('success');
+        showToast(`Successfully sent ${parseFloat(amount).toLocaleString()} ${asset.toUpperCase()}!`, "success");
+     }, 1500);
+  };
 
   if (step === 'success') {
      return (
@@ -440,18 +504,20 @@ function SendModal({ onClose }: { onClose: () => void }) {
       </div>
       <div className="space-y-2">
         <Label>Recipient Address or Email</Label>
-        <Input placeholder="Enter wallet address or VoltPay email" />
+        <Input placeholder="Enter wallet address or VoltPay email" value={recipient} onChange={e => setRecipient(e.target.value)} />
         <div className="text-xs text-bone mt-1">Transfers to Voltex emails are instant and free.</div>
       </div>
       <div className="space-y-2 pt-2">
         <Label>Amount</Label>
-        <Input type="number" placeholder="0.00" />
+        <Input type="number" placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)} />
         <div className="flex justify-between text-xs text-bone">
           <span>Available: {asset === 'usdt' ? '4,500.25 USDT' : '0.1450 BTC'}</span>
-          <button className="text-lime hover:underline">Max</button>
+          <button className="text-lime hover:underline" onClick={handleMax}>Max</button>
         </div>
       </div>
-      <Button className="w-full mt-4" onClick={() => setStep('success')}>Send Crypto</Button>
+      <Button className="w-full mt-4 h-12 relative flex items-center justify-center" onClick={handleSend} disabled={isSending || !amount}>
+         {isSending ? <RefreshCw className="w-5 h-5 animate-spin" /> : 'Send Crypto'}
+      </Button>
     </div>
   )
 }

@@ -189,12 +189,12 @@ export default function Dashboard() {
              <h3 className="font-display font-bold text-cream text-lg">Recent activity</h3>
              <Link to="/app/wallet" className="text-sm text-lime hover:text-lime-soft font-medium">See all</Link>
           </div>
-          <div className="space-y-5">
+          <div className="space-y-4">
              <ActivityRow icon={<ArrowUpRight/>} color="text-good" bg="bg-good/10" title="Bought BTC" sub="Market order · 2h ago" amount="+0.015 BTC" amountClass="text-good" subAmount="₦526,800.00" status="Completed" />
              <ActivityRow icon={<Gift/>} color="text-amber" bg="bg-amber/10" title="Sold Amazon Gift Card" sub="$100 · Physical · 5h ago" amount="+₦115,000.00" amountClass="text-good" subAmount="Success" status="Completed" />
              <ActivityRow icon={<ArrowRightLeft/>} color="text-info" bg="bg-info/10" title="Swapped USDT → SOL" sub="250 USDT · Yesterday" amount="+1.75 SOL" amountClass="text-good" subAmount="-250 USDT" status="Completed" />
              <ActivityRow icon={<Download/>} color="text-white" bg="bg-white/10" title="Bank Transfer Received" sub="GTBank · Yesterday" amount="+₦2,500,000.00" amountClass="text-cream" subAmount="Funded" status="Completed" />
-             <ActivityRow icon={<ArrowDownRight/>} color="text-rust" bg="bg-rust/10" title="Sold ETH via P2P" sub="To @KwameTrader · Oct 12" amount="-1.5 ETH" amountClass="text-rust" subAmount="+₦3,150,000.00" status="Completed" />
+             <ActivityRow icon={<ArrowDownRight/>} color="text-rust" bg="bg-rust/10" title="Sold ETH via P2P" sub="To @KwameTrader · Oct 12" amount="-1.5 ETH" amountClass="text-rust" subAmount="+₦3,150,000.00" status="Completed" isLast />
           </div>
         </Card>
 
@@ -248,9 +248,9 @@ function QuickAction({ icon, label, color, to }: { icon: React.ReactNode, label:
   )
 }
 
-function ActivityRow({ icon, color, bg, title, sub, amount, subAmount, amountClass, status }: any) {
+function ActivityRow({ icon, color, bg, title, sub, amount, subAmount, amountClass, status, isLast }: any) {
   return (
-    <div className="flex justify-between items-center group">
+    <div className={`flex justify-between items-center group ${isLast ? '' : 'border-b border-rule/50 pb-4'}`}>
       <div className="flex gap-3 items-center">
          <div className={`w-10 h-10 rounded-pill flex items-center justify-center ${bg} ${color}`}>
            {icon}
