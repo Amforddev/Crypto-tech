@@ -38,7 +38,7 @@ export default function Dashboard() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-display font-bold text-cream">Welcome back, Adaeze</h1>
-          <p className="text-bone text-sm mt-1">Here's your portfolio at a glance · updated 4s ago</p>
+          <p className="text-bone text-sm mt-1">Here's your portfolio at a glance — updated 4s ago</p>
         </div>
         <div className="flex items-center gap-3 w-full sm:w-auto">
           <Link to="/app/wallet" state={{ openModal: 'deposit' }} className="flex-1 sm:flex-none">
@@ -192,11 +192,11 @@ export default function Dashboard() {
              <Link to="/app/wallet" className="text-sm text-lime hover:text-lime-soft font-medium">See all</Link>
           </div>
           <div className="space-y-4">
-             <ActivityRow icon={<ArrowUpRight/>} color="text-good" bg="bg-good/10" title="Bought BTC" sub="Market order · 2h ago" amount="+0.015 BTC" amountClass="text-good" subAmount="₦526,800.00" status="Completed" />
-             <ActivityRow icon={<Gift/>} color="text-amber" bg="bg-amber/10" title="Sold Amazon Gift Card" sub="$100 · Physical · 5h ago" amount="+₦115,000.00" amountClass="text-good" subAmount="Success" status="Completed" />
-             <ActivityRow icon={<ArrowRightLeft/>} color="text-info" bg="bg-info/10" title="Swapped USDT → SOL" sub="250 USDT · Yesterday" amount="+1.75 SOL" amountClass="text-good" subAmount="-250 USDT" status="Completed" />
-             <ActivityRow icon={<Download/>} color="text-white" bg="bg-white/10" title="Bank Transfer Received" sub="GTBank · Yesterday" amount="+₦2,500,000.00" amountClass="text-cream" subAmount="Funded" status="Completed" />
-             <ActivityRow icon={<ArrowDownRight/>} color="text-rust" bg="bg-rust/10" title="Sold ETH via P2P" sub="To @KwameTrader · Oct 12" amount="-1.5 ETH" amountClass="text-rust" subAmount="+₦3,150,000.00" status="Completed" isLast />
+             <ActivityRow icon={<ArrowUpRight/>} color="text-good" bg="bg-good/10" title="Bought BTC" sub="Market order / 2h ago" amount="+0.015 BTC" amountClass="text-good" subAmount="₦526,800.00" status="Completed" />
+             <ActivityRow icon={<Gift/>} color="text-amber" bg="bg-amber/10" title="Sold Amazon Gift Card" sub="$100 / Physical / 5h ago" amount="+₦115,000.00" amountClass="text-good" subAmount="Success" status="Completed" />
+             <ActivityRow icon={<ArrowRightLeft/>} color="text-info" bg="bg-info/10" title="Swapped USDT → SOL" sub="250 USDT / Yesterday" amount="+1.75 SOL" amountClass="text-good" subAmount="-250 USDT" status="Completed" />
+             <ActivityRow icon={<Download/>} color="text-white" bg="bg-white/10" title="Bank Transfer Received" sub="GTBank / Yesterday" amount="+₦2,500,000.00" amountClass="text-cream" subAmount="Funded" status="Completed" />
+             <ActivityRow icon={<ArrowDownRight/>} color="text-rust" bg="bg-rust/10" title="Sold ETH via P2P" sub="To @KwameTrader / Oct 12" amount="-1.5 ETH" amountClass="text-rust" subAmount="+₦3,150,000.00" status="Completed" isLast />
           </div>
         </Card>
 
@@ -263,9 +263,9 @@ function ActivityRow({ icon, color, bg, title, sub, amount, subAmount, amountCla
          </div>
       </div>
       <div className="text-right">
-         <div className={`text-sm font-mono font-medium ${amountClass}`}>{amount}</div>
-         <div className="text-xs text-bone font-mono flex items-center justify-end gap-2">
-           {subAmount} <span className="w-1.5 h-1.5 rounded-full bg-good/50 inline-block"></span>
+         <div className={`text-sm font-poppins font-medium ${amountClass}`}>{amount}</div>
+         <div className="text-xs text-bone font-poppins flex items-center justify-end">
+           {subAmount}
          </div>
       </div>
     </div>

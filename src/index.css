@@ -28,10 +28,12 @@
   --color-rule-soft: rgba(245,241,232,0.06);
   --color-rule-strong: rgba(245,241,232,0.14);
 
-  --font-display: "Bricolage Grotesque", sans-serif;
+  --font-display: "Bricolage Grotesque", "Poppins", sans-serif;
   --font-serif: "Instrument Serif", serif;
-  --font-sans: "Onest", sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
+  --font-sans: "NumberPoppins", "Onest", sans-serif;
+  --font-mono: "Poppins", monospace;
+  --font-poppins: "Poppins", sans-serif;
+  --font-number: "Poppins", sans-serif;
   
   --radius-1: 4px;
   --radius-2: 6px;
@@ -46,7 +48,28 @@
   }
 }
 
+/* Ensure all numeric glyphs (0-9) and currency/math symbols render using Poppins */
+@font-face {
+  font-family: 'NumberPoppins';
+  font-style: normal;
+  font-weight: 100 900;
+  src: local('Poppins'), url('https://fonts.gstatic.com/s/poppins/v21/pxiByp8kv8JHgFVrLDz8Z1xlFQ.woff2') format('woff2');
+  unicode-range: U+0030-0039, U+002C, U+002E, U+0025, U+002B, U+002D, U+20A6, U+0024, U+00A3, U+20AC, U+002F;
+}
+
 @layer utilities {
+  .font-poppins {
+    font-family: "Poppins", sans-serif;
+  }
+  .font-number {
+    font-family: "Poppins", sans-serif;
+  }
+  .tabular-nums,
+  .font-mono,
+  input[type="number"],
+  .number-font {
+    font-family: "Poppins", sans-serif !important;
+  }
   .hide-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;

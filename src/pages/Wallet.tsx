@@ -146,7 +146,7 @@ export default function Wallet() {
             <div className="flex justify-between items-start mb-8 relative z-10">
                <div>
                  <div className="text-sm text-bone mb-2 flex items-center gap-2">Estimated Total Balance <RefreshCw className="w-3.5 h-3.5 text-bone hover:text-cream cursor-pointer" /></div>
-                 <div className="text-4xl sm:text-5xl font-display font-bold text-cream tabular-nums tracking-tight">₦17,896,914.25</div>
+                 <div className="text-4xl sm:text-5xl font-poppins font-bold text-cream tabular-nums tracking-tight">₦17,896,914.25</div>
                  <div className="text-sm text-lime font-medium mt-2">≈ $12,559.23 USD</div>
                </div>
             </div>

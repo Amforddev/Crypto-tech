@@ -156,8 +156,8 @@ function BuyForm() {
             <div className="flex items-center gap-2 text-bone">
               Rate <RefreshCw className="w-3 h-3 text-lime" />
             </div>
-            <div className="font-mono text-cream flex items-center gap-1.5">
-               1 {receiveAsset.toUpperCase()} ≈ ₦35,120,400 <span className="w-1.5 h-1.5 rounded-full bg-lime animate-pulse"></span>
+            <div className="font-poppins text-cream flex items-center gap-1.5">
+               1 {receiveAsset.toUpperCase()} ≈ ₦35,120,400
                <span className="text-xs text-bone ml-1">updated 3s ago</span>
             </div>
          </div>
@@ -278,8 +278,8 @@ function SellForm() {
             <div className="flex items-center gap-2 text-bone">
               Rate <RefreshCw className="w-3 h-3 text-lime" />
             </div>
-            <div className="font-mono text-cream flex items-center gap-1.5">
-               1 {sellAsset.toUpperCase()} ≈ ₦35,120,400 <span className="w-1.5 h-1.5 rounded-full bg-lime animate-pulse"></span>
+            <div className="font-poppins text-cream flex items-center gap-1.5">
+               1 {sellAsset.toUpperCase()} ≈ ₦35,120,400
             </div>
          </div>
       </div>

@@ -4,6 +4,7 @@ import { Play, ArrowRight, ArrowDownRight, ArrowUpRight, Check, Star, Download, 
 import { Button, Card, Input, Chip } from '../components/ui';
 import { Link } from 'react-router-dom';
 import { AreaChart, Area, ResponsiveContainer } from 'recharts';
+import AnimatedGlyph from '../components/AnimatedGlyph';
 
 function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode, delay?: number, className?: string, key?: React.Key }) {
   return (
@@ -115,8 +116,7 @@ function HeroSection() {
       <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <FadeIn>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-pill border border-rule bg-bg-elev mb-8 text-xs font-medium text-bone">
-              <span className="w-2 h-2 rounded-full bg-lime animate-pulse" />
+            <div className="inline-flex items-center px-3.5 py-1.5 rounded-pill border border-rule bg-bg-elev mb-8 text-xs font-medium text-bone">
               Sign up — get 10% off your first order
             </div>
             <h1 className="text-5xl md:text-7xl font-display font-bold leading-[1.1] mb-6">
@@ -203,8 +203,8 @@ function HeroSection() {
                 </div>
 
                 <div className="flex justify-between items-center text-xs text-stone py-2 border-b border-rule-soft pb-4">
-                  <span className="font-mono">{rateDisplay}</span>
-                  <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-lime animate-pulse"></span> Live Syncing</span>
+                  <span className="font-poppins">{rateDisplay}</span>
+                  <span className="text-lime font-medium">Live Syncing</span>
                 </div>
 
                 <Link to="/signup" className="block w-full">
@@ -363,18 +363,18 @@ function GiftCardsSection() {
   };
 
   const baseCards = [
-    { name: 'Amazon', baseRate: 1150, color: 'bg-orange-500/10 border-orange-500/20' },
-    { name: 'iTunes / Apple', baseRate: 1020, color: 'bg-blue-500/10 border-blue-500/20' },
-    { name: 'Steam', baseRate: 1350, color: 'bg-slate-700/20 border-slate-700/40' },
-    { name: 'Google Play', baseRate: 1100, color: 'bg-green-500/10 border-green-500/20' },
-    { name: 'eBay', baseRate: 1050, color: 'bg-red-500/10 border-red-500/20' },
-    { name: 'Walmart', baseRate: 1120, color: 'bg-blue-600/10 border-blue-600/20' },
-    { name: 'Target', baseRate: 1080, color: 'bg-red-600/10 border-red-600/20' },
-    { name: 'Best Buy', baseRate: 1140, color: 'bg-yellow-500/10 border-yellow-500/20' },
-    { name: 'Sephora', baseRate: 1200, color: 'bg-pink-500/10 border-pink-500/20' },
-    { name: 'Nordstrom', baseRate: 1090, color: 'bg-stone-500/10 border-stone-500/20' },
-    { name: 'Macy\'s', baseRate: 950, color: 'bg-red-800/10 border-red-800/20' },
-    { name: 'Nike', baseRate: 1000, color: 'bg-zinc-500/10 border-zinc-500/20' },
+    { name: 'Amazon', baseRate: 1150, color: 'bg-orange-500/10 border-orange-500/20', icon: 'simple-icons:amazon', glow: 'rgba(255, 153, 0, 0.35)' },
+    { name: 'iTunes / Apple', baseRate: 1020, color: 'bg-blue-500/10 border-blue-500/20', icon: 'simple-icons:apple', glow: 'rgba(255, 255, 255, 0.35)' },
+    { name: 'Steam', baseRate: 1350, color: 'bg-slate-700/20 border-slate-700/40', icon: 'simple-icons:steam', glow: 'rgba(102, 192, 244, 0.35)' },
+    { name: 'Google Play', baseRate: 1100, color: 'bg-green-500/10 border-green-500/20', icon: 'simple-icons:googleplay', glow: 'rgba(52, 211, 153, 0.35)' },
+    { name: 'eBay', baseRate: 1050, color: 'bg-red-500/10 border-red-500/20', icon: 'simple-icons:ebay', glow: 'rgba(229, 50, 56, 0.35)' },
+    { name: 'Walmart', baseRate: 1120, color: 'bg-blue-600/10 border-blue-600/20', icon: 'simple-icons:walmart', glow: 'rgba(255, 194, 32, 0.35)' },
+    { name: 'Target', baseRate: 1080, color: 'bg-red-600/10 border-red-600/20', icon: 'simple-icons:target', glow: 'rgba(239, 68, 68, 0.35)' },
+    { name: 'Best Buy', baseRate: 1140, color: 'bg-yellow-500/10 border-yellow-500/20', icon: 'simple-icons:bestbuy', glow: 'rgba(234, 179, 8, 0.35)' },
+    { name: 'Sephora', baseRate: 1200, color: 'bg-pink-500/10 border-pink-500/20', icon: 'simple-icons:sephora', glow: 'rgba(244, 114, 182, 0.35)' },
+    { name: 'Nordstrom', baseRate: 1090, color: 'bg-stone-500/10 border-stone-500/20', icon: 'solar:bag-5-bold', glow: 'rgba(214, 211, 209, 0.25)' },
+    { name: 'Macy\'s', baseRate: 950, color: 'bg-red-800/10 border-red-800/20', icon: 'solar:bag-4-bold', glow: 'rgba(239, 68, 68, 0.25)' },
+    { name: 'Nike', baseRate: 1000, color: 'bg-zinc-500/10 border-zinc-500/20', icon: 'simple-icons:nike', glow: 'rgba(251, 146, 60, 0.35)' },
   ];
 
   const currentCurrency = currencyMultipliers[activeCurrency] || { multiplier: 1.0, prefix: '$' };
@@ -384,7 +384,9 @@ function GiftCardsSection() {
     return {
       name: c.name,
       rate: `₦${rateVal.toLocaleString()} / ${currentCurrency.prefix}`,
-      color: c.color
+      color: c.color,
+      icon: c.icon,
+      glow: c.glow
     };
   });
 
@@ -419,9 +421,12 @@ function GiftCardsSection() {
              {cards.map((c, i) => (
                <FadeIn key={c.name} delay={i * 0.05} className="shrink-0 w-64 snap-start">
                  <Link to="/signup" className="block">
-                   <div className={`p-6 rounded-3 border ${c.color} h-36 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-pointer hover:border-lime-line/50`}>
-                     <div className="font-display font-bold text-cream text-lg">{c.name}</div>
-                     <div className="font-mono text-sm text-bone">{c.rate}</div>
+                   <div className={`p-5 rounded-3 border ${c.color} h-38 flex flex-col justify-between hover:scale-[1.02] transition-transform cursor-pointer hover:border-lime-line/50 bg-bg-elev/40`}>
+                     <div className="flex items-center justify-between">
+                       <div className="font-display font-bold text-cream text-lg">{c.name}</div>
+                       <AnimatedGlyph icon={c.icon} size={22} glow glowColor={c.glow} variant="float" />
+                     </div>
+                     <div className="font-poppins text-sm font-bold text-lime">{c.rate}</div>
                    </div>
                  </Link>
                </FadeIn>
@@ -431,17 +436,17 @@ function GiftCardsSection() {
 
         <FadeIn delay={0.4} className="grid md:grid-cols-3 gap-8 pt-16 border-t border-rule-soft">
           <div>
-            <div className="text-lime font-mono font-bold mb-4 bg-lime-tint inline-block px-3 py-1 rounded-pill">01</div>
+            <div className="text-lime font-poppins font-bold mb-4 bg-lime-tint inline-block px-3 py-1 rounded-pill">01</div>
             <h4 className="font-display font-bold text-xl mb-2 text-cream">Pick a card</h4>
             <p className="text-bone text-sm leading-relaxed">Select the brand, currency, and card type. See the live exchange rate upfront.</p>
           </div>
           <div>
-            <div className="text-lime font-mono font-bold mb-4 bg-lime-tint inline-block px-3 py-1 rounded-pill">02</div>
+            <div className="text-lime font-poppins font-bold mb-4 bg-lime-tint inline-block px-3 py-1 rounded-pill">02</div>
             <h4 className="font-display font-bold text-xl mb-2 text-cream">Upload photo + code</h4>
             <p className="text-bone text-sm leading-relaxed">Snap a clear picture of the physical card and receipt, or paste the e-code.</p>
           </div>
           <div>
-            <div className="text-lime font-mono font-bold mb-4 bg-lime-tint inline-block px-3 py-1 rounded-pill">03</div>
+            <div className="text-lime font-poppins font-bold mb-4 bg-lime-tint inline-block px-3 py-1 rounded-pill">03</div>
             <h4 className="font-display font-bold text-xl mb-2 text-cream">Paid in 5 mins</h4>
             <p className="text-bone text-sm leading-relaxed">Our human verification team checks the card and credits your NGN balance instantly.</p>
           </div>

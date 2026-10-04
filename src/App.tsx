@@ -1,5 +1,6 @@
 import React, { Component, ReactNode, ErrorInfo } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Icon } from '@iconify/react';
 import { MarketingLayout } from './layouts/MarketingLayout';
 import { AppLayout } from './layouts/AppLayout';
 import Landing from './pages/Landing';
@@ -57,7 +58,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
       return (
         <div className="min-h-screen bg-bg-base flex flex-col items-center justify-center p-6 text-center text-cream">
           <div className="w-16 h-16 rounded-full bg-rust/10 border border-rust/40 flex items-center justify-center mb-6">
-            <span className="text-rust text-2xl font-bold">⚠️</span>
+            <Icon icon="solar:danger-triangle-bold" className="text-rust text-3xl" />
           </div>
           <h2 className="text-2xl font-display font-bold mb-3 text-cream">Something went wrong</h2>
           <p className="text-bone mb-6 max-w-md text-sm leading-relaxed">

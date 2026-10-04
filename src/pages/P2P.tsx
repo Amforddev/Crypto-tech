@@ -147,9 +147,9 @@ export default function P2P() {
                          <span className="font-bold text-cream">{offer.vendor}</span>
                          {offer.isVerified && <CheckCircle2 className="w-3.5 h-3.5 text-lime" />}
                       </div>
-                      <div className="text-xs text-bone flex items-center gap-2">
+                      <div className="text-xs text-bone flex items-center gap-2 font-poppins">
                         <span>{offer.trades} orders</span>
-                        <span className="w-1 h-1 rounded-full bg-rule-strong"></span>
+                        <span className="opacity-30">/</span>
                         <span>{offer.completion}% completion</span>
                       </div>
                     </td>
@@ -398,10 +398,10 @@ function TradeRoom({ trade, onBack }: { trade: any, onBack: () => void }) {
             
             <div className="bg-bg-base border border-rule rounded-3 p-6 text-sm text-bone">
                <h3 className="font-bold text-cream mb-4">Terms and Conditions</h3>
-               <ul className="list-disc pl-4 space-y-2">
-                 <li>Do not put words like "Crypto", "Bitcoin" or "USDT" in your transfer narration.</li>
-                 <li>Ensure you are transferring from an account bearing your name. Third-party payments are not allowed.</li>
-                 <li>{isBuy ? 'Click "Transferred" ONLY when you have successfully sent the funds.' : 'Do NOT release crypto until you have successfully verified the payment in your bank.'}</li>
+               <ul className="space-y-2.5">
+                 <li className="pl-3 border-l-2 border-rule">Do not put words like "Crypto", "Bitcoin" or "USDT" in your transfer narration.</li>
+                 <li className="pl-3 border-l-2 border-rule">Ensure you are transferring from an account bearing your name. Third-party payments are not allowed.</li>
+                 <li className="pl-3 border-l-2 border-rule">{isBuy ? 'Click "Transferred" ONLY when you have successfully sent the funds.' : 'Do NOT release crypto until you have successfully verified the payment in your bank.'}</li>
                </ul>
             </div>
          </div>

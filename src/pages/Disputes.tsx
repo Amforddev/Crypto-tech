@@ -508,7 +508,7 @@ export default function Disputes() {
                               <span className={`font-bold ${isSelf ? 'text-lime' : isStaff ? 'text-[#ff9800]' : 'text-cream'}`}>
                                  {msg.senderName}
                               </span>
-                              <span>•</span>
+                              <span className="opacity-30">/</span>
                               <span>{msg.timestamp}</span>
                            </div>
 
@@ -560,7 +560,7 @@ export default function Disputes() {
                      <div className="flex flex-col items-start max-w-[80%] mr-auto">
                         <div className="flex items-center gap-1.5 mb-1 text-[11px] text-bone px-1">
                            <span className="font-bold text-[#ffa726]">{selectedDispute.staffName}</span>
-                           <span>•</span>
+                           <span className="opacity-30">/</span>
                            <span className="italic">Typing...</span>
                         </div>
                         <div className="p-3 bg-bg-elev border border-rule rounded-2 rounded-tl-none flex items-center gap-1 ml-1 text-xs text-bone">
